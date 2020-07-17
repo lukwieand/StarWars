@@ -1,0 +1,134 @@
+﻿@using StarWars.Data
+@page "/characteredit/{characterid:int}"
+@inject IDBService DBService
+@inject NavigationManager NavigationManager
+
+    <h1>@pagetitle</h1>
+
+
+    <EditForm Model="@character" OnValidSubmit="@CharacterSave">
+        <table class="editform">
+            <tr>
+                <td>Character Name</td>
+                <td><input type="text" @bind="character.Name" required /></td>
+            </tr>
+            <tr>
+                <td>Episodes:</td>
+                @if ((episodes == null))
+                {
+
+                }
+                else
+                {
+                    @foreach (var episode in episodes)
+                    {
+                        <td>@episode.Name</td>
+                    }
+                }
+               
+                @if ((episodeslist == null))
+                {
+
+                }
+                else
+                {
+                 <select class="form-control selectpicker" @bind="character.Name">
+                        <option>--select--</option>
+                                        @foreach (var item in episodeslist)
+                                        {
+                                            <option value="@item.EpisodeId">@item.Name</option>          
+                                        }
+                  </select>
+                  <input type="button" value="Add" @onclick="@AddEpisode" />
+                }
+
+
+            </tr>
+            <tr>
+                <td>Friends:</td>
+                @if ((episodes == null))
+                {
+
+                }
+                else
+                {
+                    @foreach (var friend in friends)
+                    {
+                        <td>@friend</td>
+                    }
+                }
+
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align:center">
+                    <input type="submit" value="@buttontext" />
+                    <input type="button" value="Cancel" @onclick="@Cancel" />
+                </td>
+            </tr>
+        </table>
+    </EditForm>
+
+
+@code {
+    //create new
+    Character character = new Character();
+
+
+    IEnumerable<Episode> episodes;
+    IEnumerable<string> friends;
+    IEnumerable<Episode> episodeslist;
+
+
+    //
+    [Parameter]
+    public int characterid { get; set; }
+
+    public string pagetitle = "Add a Character";
+    public string buttontext = "Add";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (characterid == 0)
+        {
+            // default
+        }
+        else
+        {
+            character = await DBService.CharacterGetOne(characterid);
+            episodes = await DBService.GetCharacterEpisodesAppearance(characterid);
+            episodeslist = await DBService.GetAllEpisodes();
+
+            episodeslist.ToList().RemoveAll(a => episodes.ToList().Exists(w => w.EpisodeId == a.EpisodeId));
+                       
+            friends = await DBService.GetCharacterFriendsNames(characterid);
+            pagetitle = "Edit Video";
+            buttontext = "Update";
+        }
+    }
+
+    protected async Task CharacterSave()
+    {
+        if (character.CharacterId == 0)
+        {
+            await DBService.CharacterInsert(character);
+        }
+        else
+        {
+            await DBService.CharacterUpdate(character);
+        }
+        NavigationManager.NavigateTo("/characterlist");
+
+    }
+
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("/characterlist");
+    }
+
+
+    protected async Task AddEpisode()
+    {
+        NavigationManager.NavigateTo("/characterlist");
+    }
+
+}

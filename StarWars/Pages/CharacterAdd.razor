@@ -1,0 +1,40 @@
+﻿@using StarWars.Data
+@page "/characteradd"
+@inject IDBService DBService
+@inject NavigationManager NavigationManager
+
+<h3 style="text-align:center">Character Add</h3>
+
+<EditForm Model="@character" OnValidSubmit="@CharacterAddRazor">
+    <table>
+        <tr>
+            <td>Character Name</td>
+            <td><input type="text" @bind="character.Name" required /></td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center">
+                <input type="submit" value="Add" />
+                <input type="button" value="Cancel" @onclick="@Cancel" />
+            </td>
+        </tr>
+    </table>
+</EditForm>
+
+
+@code {
+    //create new
+    Character character = new Character();
+
+
+    protected async Task CharacterAddRazor()
+    {
+        await DBService.CharacterInsert(character);
+        NavigationManager.NavigateTo("/characterlist");
+    }
+
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("/characterlist");
+    }
+
+}

@@ -1,0 +1,96 @@
+﻿@using StarWars.Data
+@page "/characterinfo/{characterid:int}"
+@inject IDBService DBService
+@inject NavigationManager NavigationManager
+
+<h1>Info</h1>
+<p style="color:blue;text-align:center">Friends and appearance in episodes</p>
+
+
+
+@if ( (character == null) )
+{
+        <p style="text-align:center">
+            <img src="../images/loader.gif" />
+        </p>
+
+}
+else
+{
+<table class="editform">
+    <tr>
+        <td>Character Name:</td>
+        <td>@character.Name</td>
+    </tr>
+    <tr>
+        <td>Episodes:</td>
+        @if ((episodes == null))
+        {
+
+        }
+        else
+        {
+            @foreach (var episode in episodes)
+            {
+                <td>@episode.Name</td>
+            }
+        }
+      
+    </tr>
+    <tr>
+        <td>Friends:</td>
+        @if ((episodes == null))
+        {
+
+        }
+        else
+        {
+            @foreach (var friend in friends)
+            {
+                <td>@friend</td>
+            }
+        }
+
+    </tr>
+
+    <tr>
+        <td colspan="2" style="text-align:center">
+            <input type="button" value="Back" @onclick="@Cancel" />
+        </td>
+    </tr>
+</table>
+}
+
+
+
+@code {
+
+    // Create a new, empty Video object
+    Character character = new Character();
+
+
+    IEnumerable<Episode> episodes;
+    IEnumerable<string> friends;
+    IEnumerable<Episode> episodeslist;
+
+
+
+
+    //
+    [Parameter]
+    public int characterid { get; set; }
+
+    //Executes on page open..
+    protected override async Task OnInitializedAsync()
+    {
+        character = await DBService.CharacterGetOne(characterid);
+        episodes = await DBService.GetCharacterEpisodesAppearance(characterid);    
+        friends = await DBService.GetCharacterFriendsNames(characterid);
+    }
+
+
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("/characterlist");
+    }
+}

@@ -1,0 +1,57 @@
+﻿@using StarWars.Data
+@page "/characterlist"
+@inject IDBService DBService
+
+<h3 style="text-align:center">Character List</h3>
+<p style="text-align:center">
+    <a href="/characteradd">Add a character</a>
+</p>
+
+@if (characters == null)
+{
+    <p style="text-align:center">
+        <img src="../images/loader.gif" />
+    </p>
+
+}
+else
+{
+    <table>
+        <tr>
+            <th>Edit</th>
+            <th>Character Name</th>
+            <th>Info</th>
+            <th>Delete</th>
+        </tr>
+        @foreach (var character in characters)
+        {
+    <tr>
+        <td>
+            <a href="characteredit/@character.CharacterId">
+                <img src="../images/edit.png" />
+            </a>
+        </td>
+        <td>@character.Name</td>
+        <td>
+            <a href="characterinfo/@character.CharacterId">
+                <img src="../images/info.png" alt="Info" title="Info"  />
+            </a>
+        </td>
+        <td>
+            <a href="characterdelete/@character.CharacterId">
+                <img src="../images/iTrash.png" alt="Delete" title="Delete" />
+            </a>
+        </td>
+    </tr>
+        }
+    </table>
+}
+
+@code {
+    IEnumerable<Character> characters;
+    protected override async Task OnInitializedAsync()
+    {
+        characters = await DBService.CharacterList();
+
+    }
+}

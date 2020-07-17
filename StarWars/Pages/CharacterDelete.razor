@@ -1,0 +1,49 @@
+﻿@using StarWars.Data
+@page "/characterdelete/{characterid:int}"
+@inject IDBService DBService
+@inject NavigationManager NavigationManager
+
+<h1>Delete a Video</h1>
+<p style="color:red;text-align:center">Are you sure you want to permanently delete this Character ?</p>
+
+<table class="editform">
+    <tr>
+        <td>Character Name:</td>
+        <td>@character.Name</td>
+    </tr>
+    <tr>
+        <td colspan="2" style="text-align:center">
+            <input type="button" value="Delete" @onclick="@Delete" />
+            <input type="button" value="Cancel" @onclick="@Cancel" />
+        </td>
+    </tr>
+</table>
+
+
+@code {   
+
+    // Create a new, empty Video object
+    Character character = new Character();
+
+    //
+    [Parameter]
+    public int characterid { get; set; }
+
+    //Executes on page open..
+    protected override async Task OnInitializedAsync()
+    {
+        character = await DBService.CharacterGetOne(characterid);
+    }
+
+    protected async Task Delete()
+    {
+        // Insert if id is zero.
+        await DBService.CharacterDelete(characterid);
+        NavigationManager.NavigateTo("/characterlist");
+    }
+
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("/characterlist");
+    }
+}
